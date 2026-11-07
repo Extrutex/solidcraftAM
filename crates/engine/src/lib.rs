@@ -768,7 +768,9 @@ impl Session {
         let low = self
             .world_state()
             .ok()
-            .map(|st| st.bodies.iter().flat_map(|b| b.mesh().positions.iter().map(|p| p.dot(build))).fold(f64::INFINITY, f64::min))
+            .map(|st| {
+                st.bodies.iter().fold(f64::INFINITY, |low, b| b.mesh().positions.iter().map(|p| p.dot(build)).fold(low, f64::min))
+            })
             .filter(|v| v.is_finite())
             .unwrap_or(f64::NEG_INFINITY);
         Some(render::AnalysisMode::Overhang { build, angle, bed: low })
