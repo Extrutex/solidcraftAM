@@ -1,0 +1,78 @@
+{
+  "en": {
+    "cmd.inspect_overhang": "Overhang Analysis",
+    "help.inspect.overhang": "Colors the faces by how far they overhang when the part is printed along the build direction, and marks the ones that need support. Use it to check a part for 3D printing and to choose the side it lies on.",
+    "ui.details_build": "Build direction",
+    "ui.details_overhang_caption": "Faces are colored by how far they overhang when printed along the build direction.",
+    "ui.overhang_needs_support": "Needs support (flatter than {angle}° from vertical)",
+    "ui.overhang_supported": "Self-supporting or on the build plate",
+    "ui.overhang_within": "Overhang within {angle}° of vertical"
+  },
+  "en-GB": {
+    "help.inspect.overhang": "Colours the faces by how far they overhang when the part is printed along the build direction, and marks the ones that need support. Use it to check a part for 3D printing and to choose the side it lies on.",
+    "ui.details_overhang_caption": "Faces are coloured by how far they overhang when printed along the build direction."
+  },
+  "de": {
+    "cmd.inspect_overhang": "Überhanganalyse",
+    "help.inspect.overhang": "Färbt die Flächen danach ein, wie weit sie beim Druck entlang der Aufbaurichtung überhängen, und markiert die, die Stützmaterial brauchen. Damit prüfst du ein Teil für den 3D-Druck und wählst die Seite, auf der es liegt.",
+    "ui.details_build": "Aufbaurichtung",
+    "ui.details_overhang_caption": "Flächen werden danach eingefärbt, wie weit sie beim Druck entlang der Aufbaurichtung überhängen.",
+    "ui.overhang_needs_support": "Braucht Stützmaterial (flacher als {angle}° zur Senkrechten)",
+    "ui.overhang_supported": "Selbsttragend oder auf der Druckplatte",
+    "ui.overhang_within": "Überhang innerhalb {angle}° zur Senkrechten"
+  },
+  "ar": {
+    "cmd.inspect_overhang": "تحليل البروز",
+    "help.inspect.overhang": "يلوّن الأوجه بحسب مقدار بروزها عند طباعة القطعة على امتداد اتجاه البناء، ويحدد الأوجه التي تحتاج إلى دعامات. استخدمه لفحص القطعة قبل الطباعة ثلاثية الأبعاد ولاختيار الجهة التي ترتكز عليها.",
+    "ui.details_build": "اتجاه البناء",
+    "ui.details_overhang_caption": "تُلوَّن الأوجه بحسب مقدار بروزها عند الطباعة على امتداد اتجاه البناء.",
+    "ui.overhang_needs_support": "يحتاج إلى دعامات (أكثر تسطحًا من {angle}° عن الرأسي)",
+    "ui.overhang_supported": "ذاتي الدعم أو على لوح الطباعة",
+    "ui.overhang_within": "بروز ضمن {angle}° عن الرأسي"
+  },
+  "he": {
+    "cmd.inspect_overhang": "ניתוח בליטות",
+    "help.inspect.overhang": "צובע את הפאות לפי מידת הבליטה שלהן כשהחלק מודפס לאורך כיוון הבנייה, ומסמן את אלה שצריכות תמיכה. השתמשו בו כדי לבדוק חלק להדפסת תלת־ממד ולבחור על איזה צד הוא יונח.",
+    "ui.details_build": "כיוון בנייה",
+    "ui.details_overhang_caption": "הפאות נצבעות לפי מידת הבליטה שלהן בהדפסה לאורך כיוון הבנייה.",
+    "ui.overhang_needs_support": "צריך תמיכה (שטוח יותר מ־{angle}° מהאנך)",
+    "ui.overhang_supported": "תומך בעצמו או על משטח ההדפסה",
+    "ui.overhang_within": "בליטה בטווח {angle}° מהאנך"
+  },
+  "ja": {
+    "cmd.inspect_overhang": "オーバーハング解析",
+    "help.inspect.overhang": "造形方向に沿って印刷したときにどれだけ張り出すかで面を色分けし、サポートが必要な面を示します。3D プリント前の確認や、部品をどの面で置くかを決めるときに使います。",
+    "ui.details_build": "造形方向",
+    "ui.details_overhang_caption": "造形方向に沿って印刷したときの張り出し量で面が色分けされます。",
+    "ui.overhang_needs_support": "サポートが必要（垂直から {angle}° より平ら）",
+    "ui.overhang_supported": "自立またはビルドプレート上",
+    "ui.overhang_within": "垂直から {angle}° 以内のオーバーハング"
+  },
+  "ko": {
+    "cmd.inspect_overhang": "오버행 분석",
+    "help.inspect.overhang": "조형 방향을 따라 출력할 때 얼마나 돌출되는지에 따라 면을 색칠하고 서포트가 필요한 면을 표시합니다. 3D 프린팅 전에 부품을 확인하고 놓을 면을 고를 때 사용하세요.",
+    "ui.details_build": "조형 방향",
+    "ui.details_overhang_caption": "조형 방향을 따라 출력할 때 돌출 정도에 따라 면이 색칠됩니다.",
+    "ui.overhang_needs_support": "서포트 필요 (수직에서 {angle}°보다 평평함)",
+    "ui.overhang_supported": "자체 지지 또는 빌드 플레이트 위",
+    "ui.overhang_within": "수직에서 {angle}° 이내의 오버행"
+  },
+  "vi": {
+    "cmd.inspect_overhang": "Phân tích phần nhô",
+    "help.inspect.overhang": "Tô màu các mặt theo mức nhô ra khi chi tiết được in dọc theo hướng dựng, và đánh dấu các mặt cần giá đỡ. Dùng để kiểm tra chi tiết trước khi in 3D và chọn mặt đặt chi tiết.",
+    "ui.details_build": "Hướng dựng",
+    "ui.details_overhang_caption": "Các mặt được tô màu theo mức nhô ra khi in dọc theo hướng dựng.",
+    "ui.overhang_needs_support": "Cần giá đỡ (phẳng hơn {angle}° so với phương thẳng đứng)",
+    "ui.overhang_supported": "Tự đỡ hoặc nằm trên bàn in",
+    "ui.overhang_within": "Phần nhô trong phạm vi {angle}° so với phương thẳng đứng"
+  },
+  "zh": {
+    "cmd.inspect_overhang": "悬垂分析",
+    "help.inspect.overhang": "按零件沿成型方向打印时的悬垂程度为面着色，并标出需要支撑的面。用于 3D 打印前检查零件，以及选择零件放置的面。",
+    "ui.details_build": "成型方向",
+    "ui.details_overhang_caption": "按沿成型方向打印时的悬垂程度为面着色。",
+    "ui.overhang_needs_support": "需要支撑（比竖直方向偏离超过 {angle}°）",
+    "ui.overhang_supported": "自支撑或位于打印平台上",
+    "ui.overhang_within": "悬垂在竖直方向 {angle}° 以内"
+  }
+}

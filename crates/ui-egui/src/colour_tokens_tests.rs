@@ -267,7 +267,7 @@ fn analysis_shader_colours_come_from_the_uniform() {
         ],
         "a new colour in the analysis shader must come from `ana_c` (theme::AnalysisColors)"
     );
-    assert_eq!(body.matches("u.ana_c[").count(), 9, "every analysis colour reads `ana_c`");
+    assert_eq!(body.matches("u.ana_c[").count(), 12, "every analysis colour reads `ana_c`");
 }
 
 /// Every colour the engine tags a scene line with is mapped to a token by the viewport, or carries

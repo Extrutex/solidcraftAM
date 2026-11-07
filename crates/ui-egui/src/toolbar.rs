@@ -1159,6 +1159,7 @@ const PERSISTENT_COMMANDS: &[&str] = &[
     "inspect.curvature_map",
     "inspect.draft",
     "inspect.environment_map",
+    "inspect.overhang",
     "inspect.section",
     "inspect.zebra",
 ];

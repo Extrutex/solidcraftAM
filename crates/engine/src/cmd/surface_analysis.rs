@@ -15,6 +15,7 @@ use crate::{ContinuitySeam, Result, Session, SurfaceAnalysis, kernel};
 const ZEBRA: TypedContract<contract::ZebraParams> = TypedContract::new();
 const DRAFT: TypedContract<contract::DraftParams> = TypedContract::new();
 const ENVIRONMENT: TypedContract<contract::EnvironmentParams> = TypedContract::new();
+const OVERHANG: TypedContract<contract::OverhangParams> = TypedContract::new();
 const ACCESSIBILITY: TypedContract<contract::AccessibilityParams> = TypedContract::new();
 const CURVATURE: TypedContract<contract::CurvatureParams> = TypedContract::new();
 const CONTINUITY: TypedContract<contract::ContinuityParams> = TypedContract::new();
@@ -37,6 +38,17 @@ pub static COMMANDS: &[CommandSpec] = &[
         .icon("draft_analysis")
         .noundo()
         .params("pull?: [x,y,z] direction (default Z); angle?: degrees (default 1); clear?: true turns the analysis off"),
+    CommandSpec::new("inspect.overhang", "Overhang Analysis", crate::checked!("inspect.overhang", overhang))
+        .contract(&OVERHANG)
+        .output(output_schema_for::<contract::AnalysisResult>)
+        .at("SOLID", "INSPECT")
+        .icon("draft_analysis")
+        .noundo()
+        .params(
+            "build?: [x,y,z] build direction of the printer (default Z); angle?: steepest overhang printed without support, \
+             degrees from the vertical (default 45); clear?: true turns the analysis off. Down-facing faces flatter than the \
+             angle show red (they need support), other down-facing faces yellow, the rest and faces on the build plate green",
+        ),
     CommandSpec::new("inspect.environment_map", "Environment Map Analysis", crate::checked!("inspect.environment_map", environment))
         .contract(&ENVIRONMENT)
         .output(output_schema_for::<contract::AnalysisResult>)
@@ -66,7 +78,7 @@ pub static COMMANDS: &[CommandSpec] = &[
         .output(crate::schema::output_schema_for::<crate::schema::surface_analysis::AnalysisState>)
         .params(
             "off?: true turns the view analysis on now off. → active: the command id of the view analysis on (inspect.zebra, \
-             inspect.draft, inspect.curvature_map, inspect.environment_map, inspect.accessibility, inspect.continuity, \
+             inspect.draft, inspect.overhang, inspect.curvature_map, inspect.environment_map, inspect.accessibility, inspect.continuity, \
              inspect.isocurve or inspect.curvature_comb), or null. One is on at a time: turning one on turns the one on before \
              off. Read-only without `off`",
         ),
@@ -144,6 +156,7 @@ impl SurfaceAnalysis {
             SurfaceAnalysis::Curvature { .. } => "inspect.curvature_map",
             SurfaceAnalysis::Environment => "inspect.environment_map",
             SurfaceAnalysis::Access { .. } => "inspect.accessibility",
+            SurfaceAnalysis::Overhang { .. } => "inspect.overhang",
         }
     }
 }
@@ -182,6 +195,7 @@ fn set(s: &mut Session, p: &Value, a: SurfaceAnalysis) -> Result<Value> {
         SurfaceAnalysis::Curvature { radius } => contract::Analysis::Curvature { radius },
         SurfaceAnalysis::Environment => contract::Analysis::Environment,
         SurfaceAnalysis::Access { dir } => contract::Analysis::Access { dir: vector(dir) },
+        SurfaceAnalysis::Overhang { build, angle } => contract::Analysis::Overhang { build: vector(build), angle },
     });
     serde_json::to_value(contract::AnalysisResult { analysis, param_warnings: Vec::new() }).map_err(|e| bad("surface analysis", e.to_string()))
 }
@@ -205,6 +219,21 @@ fn draft(s: &mut Session, p: &Value) -> Result<Value> {
         return Err(bad(cmd, "`angle` must be 0…90 degrees"));
     }
     set(s, p, SurfaceAnalysis::Draft { pull, angle })
+}
+
+/// `inspect.overhang`: shade the faces by how far they hang over when printed along `build`, for
+/// additive manufacturing. View state only, like the other analyses.
+fn overhang(s: &mut Session, p: &Value) -> Result<Value> {
+    let cmd = "inspect.overhang";
+    let build = match p.get("build") {
+        Some(v) => vec3(v).and_then(Vec3::normalized).ok_or_else(|| bad(cmd, "`build` must be a non-zero [x,y,z]"))?,
+        None => Vec3::Z,
+    };
+    let angle = num(p, "angle").unwrap_or(45.0);
+    if !(angle.is_finite() && (0.0..90.0).contains(&angle)) {
+        return Err(bad(cmd, "`angle` must be 0…90 degrees"));
+    }
+    set(s, p, SurfaceAnalysis::Overhang { build, angle })
 }
 
 fn accessibility(s: &mut Session, p: &Value) -> Result<Value> {
@@ -497,6 +526,34 @@ mod tests {
 
     use crate::{Session, SurfaceAnalysis};
 
+    /// Overhang Analysis is a view analysis like Draft: defaults, validation, and the build plate
+    /// the shading uses, the lowest point of the bodies along the build direction.
+    #[test]
+    fn overhang_analysis_finds_the_build_plate_along_the_build_direction() {
+        let mut s = Session::default();
+        boxed(&mut s, 20.0);
+        let out = s.execute("inspect.overhang", &json!({})).unwrap();
+        assert_eq!(out["analysis"], json!({"type": "overhang", "build": [0.0, 0.0, 1.0], "angle": 45.0}));
+        assert_eq!(s.execute("inspect.analysis", &json!({})).unwrap()["active"], json!("inspect.overhang"));
+        let bed = |s: &Session| match s.analysis_mode() {
+            Some(solidcraft_render::AnalysisMode::Overhang { bed, .. }) => bed,
+            other => panic!("not an overhang mode: {other:?}"),
+        };
+        let st = s.world_state().unwrap();
+        let low_z = st.bodies.iter().map(|b| b.mesh().bounds().min.z).fold(f64::INFINITY, f64::min);
+        assert!((bed(&s) - low_z).abs() < 1e-9, "plate {} vs lowest z {low_z}", bed(&s));
+        // Printed upside down (build along -Z) the plate is the top face: -max z along -Z.
+        s.execute("inspect.overhang", &json!({"build": [0, 0, -2], "angle": 30})).unwrap();
+        let high_z = st.bodies.iter().map(|b| b.mesh().bounds().max.z).fold(f64::NEG_INFINITY, f64::max);
+        assert!((bed(&s) + high_z).abs() < 1e-9);
+        assert!(matches!(s.analysis, Some(SurfaceAnalysis::Overhang { angle, .. }) if angle == 30.0));
+        for bad in [json!({"angle": 90}), json!({"angle": -1}), json!({"build": [0, 0, 0]}), json!({"build": "up"})] {
+            assert!(s.execute("inspect.overhang", &bad).is_err(), "{bad} must be refused");
+        }
+        s.execute("inspect.overhang", &json!({"clear": true})).unwrap();
+        assert!(s.analysis.is_none());
+    }
+
     fn boxed(s: &mut Session, size: f64) {
         s.execute("solid.box", &json!({"length": size, "width": size, "height": size})).unwrap();
     }
@@ -721,6 +778,7 @@ mod tests {
             ("inspect.environment_map", json!({}), StatusSetting::Environment, false),
             ("inspect.accessibility", json!({"direction": [-3, 0, 0]}), StatusSetting::Accessibility { direction: [-1.0, 0.0, 0.0] }, true),
             ("inspect.curvature_map", json!({"radius": 2.75}), StatusSetting::Curvature { radius_mm: 2.75 }, true),
+            ("inspect.overhang", json!({"build": [0, 0, 4], "angle": 50}), StatusSetting::Overhang { build: [0.0, 0.0, 1.0], angle_deg: 50.0 }, true),
         ] {
             s.execute(command, &params).unwrap();
             let items = status(&mut s);

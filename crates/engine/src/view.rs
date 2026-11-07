@@ -786,7 +786,7 @@ fn build_scene(
         cap: Some(p.cap),
         plain_cap: !s.section_hatch,
         part_hatch: Some([p.cap, p.hatch[0], p.hatch[1]]),
-        analysis: s.analysis.map(|a| SceneAnalysis { mode: a.mode(), colors: p.analysis }),
+        analysis: s.analysis_mode().map(|mode| SceneAnalysis { mode, colors: p.analysis }),
         ..Default::default()
     };
     let b = bounds(s)?;

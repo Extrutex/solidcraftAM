@@ -300,7 +300,11 @@ pub fn start_hook(app: &mut SolveApp, id: &str) -> bool {
         ("inspect.curvature_map", Some(A::Curvature { .. })) => Some(true),
         ("inspect.environment_map", Some(A::Environment)) => Some(true),
         ("inspect.accessibility", Some(A::Access { .. })) => Some(true),
-        ("inspect.zebra" | "inspect.draft" | "inspect.curvature_map" | "inspect.environment_map" | "inspect.accessibility", _) => Some(false),
+        ("inspect.overhang", Some(A::Overhang { .. })) => Some(true),
+        (
+            "inspect.zebra" | "inspect.draft" | "inspect.curvature_map" | "inspect.environment_map" | "inspect.accessibility" | "inspect.overhang",
+            _,
+        ) => Some(false),
         _ => None,
     };
     if let Some(on) = same {

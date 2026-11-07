@@ -677,6 +677,10 @@ pub enum SurfaceAnalysis {
     /// Green where a tool coming along `dir` reaches the face (facing it, nothing above), red
     /// elsewhere.
     Access { dir: Vec3 },
+    /// Additive manufacturing overhangs, printed along `build`: down-facing faces flatter than
+    /// `angle` degrees from the vertical red (they need support), other down-facing faces yellow,
+    /// the rest and the faces on the build plate green.
+    Overhang { build: Vec3, angle: f64 },
 }
 
 /// One seam measured by `inspect.continuity`, where the viewport shades it: the stations it was
@@ -746,7 +750,28 @@ impl SurfaceAnalysis {
             SurfaceAnalysis::Curvature { radius } => M::Curvature { radius },
             SurfaceAnalysis::Environment => M::Environment,
             SurfaceAnalysis::Access { dir } => M::Access { dir },
+            // The build plate height is filled in by `Session::analysis_mode`, which sees the bodies.
+            SurfaceAnalysis::Overhang { build, angle } => M::Overhang { build, angle, bed: f64::NEG_INFINITY },
         }
+    }
+}
+
+impl Session {
+    /// How pictures shade the faces now: [`SurfaceAnalysis::mode`] with what depends on the model,
+    /// the build plate of Overhang Analysis (the lowest point of the visible bodies along the build
+    /// direction, from their display meshes: it only colours the view).
+    pub fn analysis_mode(&self) -> Option<render::AnalysisMode> {
+        let mode = self.analysis?.mode();
+        let render::AnalysisMode::Overhang { build, angle, .. } = mode else {
+            return Some(mode);
+        };
+        let low = self
+            .world_state()
+            .ok()
+            .map(|st| st.bodies.iter().flat_map(|b| b.mesh().positions.iter().map(|p| p.dot(build))).fold(f64::INFINITY, f64::min))
+            .filter(|v| v.is_finite())
+            .unwrap_or(f64::NEG_INFINITY);
+        Some(render::AnalysisMode::Overhang { build, angle, bed: low })
     }
 }
 

@@ -53,6 +53,7 @@ pub(crate) fn primary(effect: &StatusItem) -> &'static str {
         StatusSetting::Zebra { .. } => "stripes",
         StatusSetting::Accessibility { .. } => "direction",
         StatusSetting::Curvature { .. } => "radius",
+        StatusSetting::Overhang { .. } => "angle",
         StatusSetting::Section { .. } => "offset",
         StatusSetting::Continuity { .. } => "record",
         StatusSetting::Environment => "",
@@ -77,6 +78,10 @@ pub(crate) fn description(app: &SolveApp, effect: &StatusItem) -> Details {
         StatusSetting::Curvature { radius_mm } => {
             details.caption = Some(tr("ui.details_curvature_caption"));
             details.settings.push(field("radius", "ui.details_radius", length(app, radius_mm)));
+        }
+        StatusSetting::Overhang { build, angle_deg } => {
+            details.caption = Some(tr("ui.details_overhang_caption"));
+            details.settings = vec![field("build", "ui.details_build", axis(build)), field("angle", "ui.details_angle", DetailValue::Angle(angle_deg))];
         }
         StatusSetting::Section { origin_mm, normal, hatch } => {
             if let Some((_, offset, n)) = crate::viewport_status::section_coordinates(origin_mm, normal) {
@@ -103,7 +108,7 @@ pub(crate) fn description(app: &SolveApp, effect: &StatusItem) -> Details {
                 colour,
                 numeric: label.chars().any(|c| c.is_ascii_digit()),
                 label,
-                pattern: pattern || (matches!(effect.setting, StatusSetting::Draft { .. }) && index == 2),
+                pattern: pattern || (matches!(effect.setting, StatusSetting::Draft { .. } | StatusSetting::Overhang { .. }) && index == 2),
                 value: String::new(),
                 pattern_colour: None,
             })
@@ -178,6 +183,9 @@ pub(crate) fn edit_params(app: &SolveApp, effect: &StatusItem, id: &str, value: 
         StatusSetting::Zebra { stripes } => Some(json!({"stripes":if id=="stripes"{scalar(value)?}else{stripes}})),
         StatusSetting::Accessibility { direction } => Some(json!({"direction":if id=="direction"{axis_value(value)?}else{direction}})),
         StatusSetting::Curvature { radius_mm } => Some(json!({"radius":if id=="radius"{scalar(value)?}else{radius_mm}})),
+        StatusSetting::Overhang { build, angle_deg } => {
+            Some(json!({"build":if id=="build" { axis_value(value)? } else {build},"angle":if id=="angle"{scalar(value)?}else{angle_deg}}))
+        }
         StatusSetting::Section { origin_mm, normal, hatch } => {
             let (_, old_offset, n) = crate::viewport_status::section_coordinates(origin_mm, normal)?;
             let mut base = origin_mm.into_iter().zip(n).map(|(o, n)| o - n * old_offset).collect::<Vec<_>>();

@@ -191,7 +191,7 @@ pub const SECTIONS: &[Section] = &[
         tab: "INSPECT",
         panel: "CHECK",
         promoted: 4,
-        ids: &["inspect.interference", "inspect.draft", "inspect.accessibility", "contact.check", "inspect.compare"],
+        ids: &["inspect.interference", "inspect.draft", "inspect.overhang", "inspect.accessibility", "contact.check", "inspect.compare"],
     },
     Section {
         tab: "INSPECT",
@@ -424,6 +424,7 @@ pub const RIBBON_LABELS: &[(&str, &str)] = &[
     ("inspect.draft", "Draft"),
     ("inspect.interference", "Interference"),
     ("inspect.isocurve", "Isocurve"),
+    ("inspect.overhang", "Overhang"),
     ("inspect.section", "Section"),
     ("inspect.zebra", "Zebra"),
     ("joint.as_built", "As-Built"),

@@ -51,6 +51,19 @@ pub struct DraftParams {
 }
 #[derive(Debug, Deserialize, JsonSchema)]
 #[schemars(deny_unknown_fields)]
+pub struct OverhangParams {
+    /// Nonzero build direction (the printer's +Z as the part lies on the plate). Default +Z;
+    /// normalised by the handler.
+    #[serde(default, deserialize_with = "present", skip_serializing_if = "Option::is_none")]
+    #[schemars(with = "AxisDir")]
+    pub build: Option<AxisDir>,
+    /// The steepest overhang printed without support, in degrees from the vertical, 0 inclusive to
+    /// 90 exclusive. Default 45.
+    pub angle: Option<f64>,
+    pub clear: Option<bool>,
+}
+#[derive(Debug, Deserialize, JsonSchema)]
+#[schemars(deny_unknown_fields)]
 pub struct EnvironmentParams {
     pub clear: Option<bool>,
 }
@@ -123,6 +136,7 @@ pub enum Analysis {
     Curvature { radius: f64 },
     Environment,
     Access { dir: [f64; 3] },
+    Overhang { build: [f64; 3], angle: f64 },
 }
 #[derive(Serialize, JsonSchema)]
 pub struct AnalysisResult {

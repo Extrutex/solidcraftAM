@@ -1043,7 +1043,8 @@ pub struct Frame {
     /// Point clouds and their cells.
     pub clouds: Vec<GpuCloud>,
     /// Surface analysis: (mode: 0 none, 1 zebra, 2 draft, 3 curvature, 4 environment,
-    /// 5 accessibility; parameter; scale; size) and the pull / access direction.
+    /// 5 accessibility, 6 overhang; parameter; scale or build plate height; size) and the pull /
+    /// access / build direction.
     pub analysis: [f32; 8],
     /// The analysis colours and the stripe flag ([`analysis_colors`]).
     pub analysis_colors: [f32; 36],
@@ -1187,6 +1188,11 @@ pub fn analysis_uniform(mode: Option<solidcraft_render::AnalysisMode>, access: O
         Some(A::Draft { pull, angle }) => [2.0, angle as f32, 0.0, 0.0, pull.x as f32, pull.y as f32, pull.z as f32, 0.0],
         Some(A::Curvature { radius }) => [3.0, radius as f32, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
         Some(A::Environment) => [4.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+        // Overhang: mode 6, the limit angle, the build plate height along the build direction.
+        Some(A::Overhang { build, angle, bed }) => {
+            let bed = if bed.is_finite() { bed as f32 } else { f32::MIN };
+            [6.0, angle as f32, bed, 0.0, build.x as f32, build.y as f32, build.z as f32, 0.0]
+        }
         Some(A::Access { dir }) => {
             let (scale, size, eps) = access.map(|m| (m.scale, m.size as f32, 1.5 / m.scale.max(1e-9))).unwrap_or((0.0, 0.0, 0.0));
             [5.0, eps, scale, size, dir.x as f32, dir.y as f32, dir.z as f32, 0.0]

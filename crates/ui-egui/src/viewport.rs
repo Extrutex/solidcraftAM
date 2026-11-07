@@ -3467,7 +3467,7 @@ fn bounds_of(app: &SolveApp, items: impl Iterator<Item = Sel>) -> Option<solidcr
 /// The section as the shader's clip plane (normal, d), zero when there is none.
 /// The surface analysis for the shader (see `gpu::Frame::analysis`).
 fn analysis_uniform(app: &SolveApp) -> [f32; 8] {
-    solidcraft_gpu::view::analysis_uniform(app.session.analysis.map(|a| a.mode()), crate::access::map(app).as_ref())
+    solidcraft_gpu::view::analysis_uniform(app.session.analysis_mode(), crate::access::map(app).as_ref())
 }
 
 /// Why the model cannot be placed, across the bottom of the viewport, while it cannot: the
@@ -3503,6 +3503,15 @@ pub(crate) fn analysis_legend_data(app: &SolveApp) -> Option<AnalysisLegend> {
                 (col(a.draft[0]), format!("≥ {angle:.1}°"), false),
                 (col(a.draft[1]), format!("−{angle:.1}° … {angle:.1}°"), false),
                 (col(a.draft[2]), format!("≤ −{angle:.1}°"), a.hatch),
+            ],
+        ),
+        Some(A::Overhang { build, angle }) => (
+            tr("Overhang Analysis"),
+            Some(format!("{} {}", crate::i18n::tr("ui.details_build"), dir(build))),
+            vec![
+                (col(a.draft[0]), crate::i18n::tr("ui.overhang_supported").to_string(), false),
+                (col(a.draft[1]), crate::i18n::format("ui.overhang_within", &[("angle", &format!("{angle:.1}"))]), false),
+                (col(a.draft[2]), crate::i18n::format("ui.overhang_needs_support", &[("angle", &format!("{angle:.1}"))]), a.hatch),
             ],
         ),
         Some(A::Access { dir: d }) => (

@@ -45,6 +45,12 @@ pub enum StatusSetting {
     Curvature {
         radius_mm: f64,
     },
+    Overhang {
+        /// Normalised build direction.
+        build: [f64; 3],
+        /// The steepest overhang printed without support, degrees from the vertical.
+        angle_deg: f64,
+    },
     Continuity {
         /// Number of persistent seam records currently shaded.
         edge_count: usize,
@@ -195,6 +201,7 @@ impl Session {
                 SurfaceAnalysis::Environment => ("inspect.environment_map", StatusSetting::Environment, false),
                 SurfaceAnalysis::Access { dir } => ("inspect.accessibility", StatusSetting::Accessibility { direction: dir.into() }, true),
                 SurfaceAnalysis::Curvature { radius } => ("inspect.curvature_map", StatusSetting::Curvature { radius_mm: radius }, true),
+                SurfaceAnalysis::Overhang { build, angle } => ("inspect.overhang", StatusSetting::Overhang { build: build.into(), angle_deg: angle }, true),
             })
             .or_else(|| {
                 (self.single_surface_analysis && !self.continuity.is_empty()).then_some((

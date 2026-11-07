@@ -78,6 +78,7 @@ pub const DOCUMENTED: &[&str] = &[
     "inspect.isocurve",
     "inspect.measure",
     "inspect.minimum_radius",
+    "inspect.overhang",
     "inspect.section",
     "inspect.zebra",
     "joint.as_built",

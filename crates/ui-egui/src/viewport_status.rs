@@ -87,6 +87,7 @@ pub(crate) fn presentation(app: &SolveApp, effect: &Effect) -> Option<StatusItem
         StatusSetting::Environment => String::new(),
         StatusSetting::Accessibility { direction: from } => crate::i18n::format("ui.viewport_status_from", &[("direction", &direction(from))]),
         StatusSetting::Curvature { radius_mm } => format!("R {}", crate::prefs::show_mm(app, radius_mm, 1)),
+        StatusSetting::Overhang { build, angle_deg } => format!("{} · {angle_deg}°", direction(build)),
         StatusSetting::Continuity { edge_count } => crate::i18n::format("ui.viewport_status_edges", &[("count", &edge_count.to_string())]),
         StatusSetting::Section { origin_mm, normal, hatch } => section_setting(app, origin_mm, normal, hatch)?,
     };

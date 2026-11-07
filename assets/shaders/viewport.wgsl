@@ -561,6 +561,19 @@ fn analysis(i: TOut, k: f32) -> vec4<f32> {
         let c = select(0.08, 0.95, s > 0.0 || abs(x) < 1e-4);
         return out_color(vec4<f32>(vec3<f32>(c), 1.0));
     }
+    if (u.ana.x > 5.5) {
+        // Overhangs for additive manufacturing, printed along `pull`: a down-facing face flatter
+        // than the limit (`ana.y` degrees from the vertical) needs support; one resting on the
+        // build plate (`ana.z`, the lowest point along the build direction) does not.
+        let b = normalize(u.pull.xyz);
+        let s = clamp(dot(normalize(i.n), b), -1.0, 1.0);
+        let down = degrees(asin(-s));
+        let on_bed = s < -0.999 && dot(i.wp, b) <= u.ana.z + 0.05;
+        var c = u.ana_c[0].rgb;
+        if (!on_bed && down > 0.5) { c = u.ana_c[1].rgb; }
+        if (!on_bed && down > 90.0 - u.ana.y) { c = stripe(i, u.ana_c[2].rgb); }
+        return out_color(vec4<f32>(c * lit, 1.0));
+    }
     if (u.ana.x > 4.5) {
         // Reachable from the access direction: facing it and nothing above.
         let d = normalize(u.pull.xyz);

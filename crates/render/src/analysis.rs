@@ -46,6 +46,10 @@ pub enum AnalysisMode {
     Environment,
     /// Reachable along `dir` (facing it, nothing above) or blocked.
     Access { dir: Vec3 },
+    /// Additive manufacturing: faces by how far they hang over, printed along `build`. Down-facing
+    /// faces steeper than `angle` degrees from the vertical need support; faces at the lowest
+    /// point along `build` (`bed`, a distance along `build`) rest on the build plate.
+    Overhang { build: Vec3, angle: f64, bed: f64 },
 }
 
 /// A surface analysis shading a picture: the mode and its colours.
