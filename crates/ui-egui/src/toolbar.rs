@@ -6493,7 +6493,7 @@ mod persistent_ribbon_tests {
     }
 
     #[test]
-    fn persistent_grid_tracks_all_six_analysis_replacements_queries_and_failed_activation() {
+    fn persistent_grid_tracks_every_analysis_replacement_query_and_failed_activation() {
         let mut h = harness();
         h.app.session.execute("inspect.section", &json!({"plane":"YZ","at":3})).unwrap();
         let cut = h.app.session.section;
@@ -6503,7 +6503,7 @@ mod persistent_ribbon_tests {
             h.app.session.execute("view.status_items", &json!({})).unwrap();
             assert!(h.app.session.execute("inspect.draft", &json!({"pull":[0,0,0]})).is_err());
             assert_eq!(h.app.session.status_items(), before);
-            let panel = if matches!(id, "inspect.draft" | "inspect.accessibility") { "CHECK" } else { "SURFACE QUALITY" };
+            let panel = if matches!(id, "inspect.draft" | "inspect.overhang" | "inspect.accessibility") { "CHECK" } else { "SURFACE QUALITY" };
             open_status_grid(&mut h, panel);
             assert_status_grid(&h, id, true, Some(egui::accesskit::Toggled::True));
             assert_eq!(h.app.session.section, cut, "analysis replacement leaves Section independent");
